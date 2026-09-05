@@ -23,7 +23,7 @@ RUN apk add --no-cache --virtual .build-deps \
         pdo_pgsql \
         zip \
         opcache \
-    && apk add --no-cache libpq git unzip openssl su-exec \
+    && apk add --no-cache libpq git unzip openssl su-exec icu-libs libzip \
     && apk del .build-deps
 
 RUN echo 'memory_limit=256M' > /usr/local/etc/php/conf.d/memory.ini
@@ -88,6 +88,7 @@ COPY --from=vendor /var/www/app/vendor ./vendor
 COPY . .
 COPY --from=frontend /fe/dist ./public/spa-dist
 COPY infra/docker/php-fpm-www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY .env.example .env
 
 RUN addgroup -g 1000 appgroup \
     && adduser -D -u 1000 -G appgroup -h /var/www/app appuser \
