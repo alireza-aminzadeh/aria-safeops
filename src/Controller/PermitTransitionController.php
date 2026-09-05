@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Domain\Permit\Entity\Permit;
 use App\Domain\Shared\WorkflowTransitionApplier;
+use App\Infrastructure\Mercure\MercurePublisher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +18,7 @@ final class PermitTransitionController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly WorkflowInterface $permitToWorkStateMachine,
+        private readonly MercurePublisher $mercure,
     ) {
     }
 
@@ -45,6 +47,11 @@ final class PermitTransitionController extends AbstractController
         $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         WorkflowTransitionApplier::apply($this->permitToWorkStateMachine, $permit, (string) ($payload['transition'] ?? ''));
         $this->em->flush();
+        $this->mercure->publish('permits', [
+            'type' => 'permit.transition',
+            'id' => (string) $permit->getId(),
+            'status' => $permit->getStatus(),
+        ]);
 
         return $this->json(['id' => (string) $permit->getId(), 'status' => $permit->getStatus()]);
     }

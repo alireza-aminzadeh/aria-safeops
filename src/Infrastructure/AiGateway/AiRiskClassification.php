@@ -15,4 +15,9 @@ final class AiRiskClassification
     {
         return new self(false, null, 'طبقه‌بندی ریسک هوشمند هنوز فعال نشده است.');
     }
+
+    public static function fromLevel(string $level): self
+    {
+        return new self(true, $level, null);
+    }
 }

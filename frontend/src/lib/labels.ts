@@ -27,6 +27,17 @@ export const incidentStatus: Record<string, string> = {
   closed: 'بسته',
 };
 
+export const shiftStatus: Record<string, string> = {
+  draft: 'پیش‌نویس',
+  submitted: 'ارسال‌شده',
+  accepted: 'پذیرفته',
+};
+
+export const visionType: Record<string, string> = {
+  missing_ppe: 'نقص PPE',
+  restricted_zone: 'ناحیهٔ ممنوعه',
+};
+
 export const incidentType: Record<string, string> = {
   near_miss: 'شبه‌حادثه',
   incident: 'حادثه',

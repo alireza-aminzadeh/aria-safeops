@@ -3,6 +3,8 @@ set -eu
 PG=$(openssl rand -hex 24)
 RD=$(openssl rand -hex 24)
 SECRET=$(openssl rand -hex 32)
+INT=$(openssl rand -hex 32)
+MER=$(openssl rand -hex 32)
 cat > /root/aria-safeops.env <<EOF
 COMPOSE_FILE=docker-compose.yml
 APP_ENV=prod
@@ -21,14 +23,18 @@ JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
 JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
 JWT_TTL=28800
 TRUSTED_PROXIES=127.0.0.1,REMOTE_ADDR
-AI_GATEWAY_ENABLED=false
+AI_GATEWAY_ENABLED=true
 AI_GATEWAY_URL=
 AI_GATEWAY_API_KEY=
 AI_GATEWAY_TIMEOUT_MS=8000
-MERCURE_ENABLED=false
-MERCURE_URL=http://mercure:3000/.well-known/mercure
+PETROOPS_INTEGRATION_KEY=${INT}
+VISION_SIMULATOR=true
+VISION_GATEWAY_URL=
+VISION_INGEST_KEY=
+MERCURE_ENABLED=true
+MERCURE_URL=http://mercure/.well-known/mercure
 MERCURE_PUBLIC_URL=https://hse.aria-ai.ir/.well-known/mercure
-MERCURE_JWT_SECRET=
+MERCURE_JWT_SECRET=${MER}
 MAILER_DSN=smtp://localhost
 EOF
 chmod 600 /root/aria-safeops.env

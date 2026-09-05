@@ -14,7 +14,7 @@ services:
             - '../src/Domain/*/Entity/'
 
     App\Infrastructure\AiGateway\AiGatewayInterface:
-        class: App\Infrastructure\AiGateway\NullAiGatewayAdapter
+        factory: ['@App\Infrastructure\AiGateway\AiGatewayFactory', 'create']
 
     App\Controller\PermitTransitionController:
         arguments:

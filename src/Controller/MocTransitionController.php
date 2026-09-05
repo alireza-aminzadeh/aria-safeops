@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Domain\Moc\Entity\MocRequest;
 use App\Domain\Shared\WorkflowTransitionApplier;
+use App\Infrastructure\Mercure\MercurePublisher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +18,7 @@ final class MocTransitionController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly WorkflowInterface $mocWorkflowStateMachine,
+        private readonly MercurePublisher $mercure,
     ) {
     }
 
@@ -45,6 +47,11 @@ final class MocTransitionController extends AbstractController
         $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         WorkflowTransitionApplier::apply($this->mocWorkflowStateMachine, $moc, (string) ($payload['transition'] ?? ''));
         $this->em->flush();
+        $this->mercure->publish('psm', [
+            'type' => 'moc.transition',
+            'id' => (string) $moc->getId(),
+            'status' => $moc->getStatus(),
+        ]);
 
         return $this->json(['id' => (string) $moc->getId(), 'status' => $moc->getStatus()]);
     }

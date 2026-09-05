@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { faDate, sumCounts } from '../lib/labels';
-import type { Dashboard } from '../lib/types';
+import type { Api754, Dashboard } from '../lib/types';
 import { StatusBadge } from '../components/StatusBadge';
 
 function Card({ title, value, hint }: { title: string; value: number; hint: string }) {
@@ -17,11 +17,12 @@ function Card({ title, value, hint }: { title: string; value: number; hint: stri
 
 export function DashboardPage() {
   const [data, setData] = useState<Dashboard | null>(null);
+  const [kpis, setKpis] = useState<Api754 | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api<Dashboard>('/dashboard')
-      .then(setData)
+    Promise.all([api<Dashboard>('/dashboard'), api<Api754>('/kpis/api754')])
+      .then(([dash, kpi]) => { setData(dash); setKpis(kpi); })
       .catch((err) => setError(err instanceof Error ? err.message : 'خطا'));
   }, []);
 
@@ -31,7 +32,7 @@ export function DashboardPage() {
   return (
     <section className="space-y-8">
       <div>
-        <p className="text-xs tracking-[0.2em] text-ember">PHASE 1 · BPMS</p>
+        <p className="text-xs tracking-[0.2em] text-ember">PHASE 2 · PSM + BPMS</p>
         <h2 className="text-2xl mt-1">وضعیت عملیات ایمنی</h2>
       </div>
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -40,6 +41,14 @@ export function DashboardPage() {
         <Card title="MOC باز" value={sumCounts(data.mocs, ['proposed', 'risk_assessment', 'approval', 'implementation', 'pssr'])} hint="بدون PSSR بسته نمی‌شود" />
         <Card title="حوادث باز" value={sumCounts(data.incidents, ['reported', 'under_investigation', 'capa_assigned'])} hint="تا بستن CAPA پیگیری شود" />
       </div>
+      {kpis ? (
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <Card title="API 754 T1" value={kpis.tier1} hint="رویداد پس‌روی جدی" />
+          <Card title="API 754 T2" value={kpis.tier2} hint="LOPC خفیف‌تر" />
+          <Card title="HAZOP پرریسک باز" value={kpis.leading.openHighHazop} hint="شاخص پیش‌رو" />
+          <Card title="رویداد Vision باز" value={kpis.leading.openVisionEvents} hint="PPE / ناحیه ممنوعه" />
+        </div>
+      ) : null}
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-line bg-panel p-5">
           <div className="flex justify-between items-center mb-4">

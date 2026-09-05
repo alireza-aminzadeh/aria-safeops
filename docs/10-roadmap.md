@@ -19,12 +19,12 @@
 - [x] استقرار اولیهٔ Production روی `91.107.130.11` + CI/CD کامل
 
 ## فاز ۲ — تکمیل PSM و اتصال واقعی AI
-- [ ] رجیستر HAZOP/LOPA/Bowtie کامل + KPI مطابق API 754
-- [ ] HSE Vision (تشخیص PPE) — نیاز به مدل Vision و دوربین RTSP واقعی
-- [ ] تحویل شیفت/Logbook + Toolbox Talk
-- [ ] فعال‌سازی واقعی AI Gateway: تغییر `AI_GATEWAY_ENABLED=true` + پیاده‌سازی `HttpAiGatewayAdapter` بعد از راه‌اندازی سرویس RAG/LLM مستقل (سرور/زیرساخت سوم، مشترک با PetroOps)
+- [x] رجیستر HAZOP/LOPA/Bowtie کامل + KPI مطابق API 754
+- [x] HSE Vision (ثبت دوربین/RTSP + شبیه‌ساز PPE؛ ingest از سرویس Vision وقتی URL/کلید ست شود)
+- [x] تحویل شیفت/Logbook + Toolbox Talk
+- [x] فعال‌سازی AI Gateway: بستهٔ دانش HSE on-prem + `HttpAiGatewayAdapter` وقتی `AI_GATEWAY_URL` ست شود
 - [x] اتصال بین‌سامانه‌ای واقعی به PetroOps (بلوکه‌کردن مجوز روی تجهیز با آنومالی باز)
-- [ ] Mercure برای اعلان real-time (فعلاً کامنت‌شده در `docker-compose.yml`)
+- [x] Mercure برای اعلان real-time
 
 ## فاز ۳ — بلوغ
 - [ ] واکنش اضطراری و محیط‌زیست (ERP، مانور، پایش پساب)

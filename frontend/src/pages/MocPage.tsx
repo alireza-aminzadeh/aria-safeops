@@ -19,9 +19,14 @@ export function MocPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    await api('/moc_requests', { method: 'POST', body: JSON.stringify({ description, changeType: changeTypeValue, equipmentTag }) });
-    setDescription('');
-    await load();
+    setError(null);
+    try {
+      await api('/moc_requests', { method: 'POST', body: JSON.stringify({ description, changeType: changeTypeValue, equipmentTag }) });
+      setDescription('');
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'خطا در ثبت درخواست');
+    }
   }
 
   return (

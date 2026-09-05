@@ -103,4 +103,14 @@ class MocRequest
     public function getRequestedBy(): ?User { return $this->requestedBy; }
     public function setRequestedBy(?User $user): void { $this->requestedBy = $user; }
     public function getPssrCompletedAt(): ?\DateTimeImmutable { return $this->pssrCompletedAt; }
+
+    public function addHazopItem(HazopRegisterItem $item): void
+    {
+        $this->hazopItems->add($item);
+        $item->setMocRequest($this);
+        $item->setTenant($this->tenant);
+    }
+
+    /** @return Collection<int, HazopRegisterItem> */
+    public function getHazopItems(): Collection { return $this->hazopItems; }
 }

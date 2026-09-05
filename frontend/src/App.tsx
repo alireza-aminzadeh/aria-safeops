@@ -1,4 +1,5 @@
 import { Navigate, Outlet, Route, Routes, NavLink, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { clearToken, getToken } from './lib/api';
 import { AuthProvider, useAuth } from './lib/auth';
 import { LoginPage } from './pages/LoginPage';
@@ -11,6 +12,10 @@ import { IncidentsPage } from './pages/IncidentsPage';
 import { IncidentDetailPage } from './pages/IncidentDetailPage';
 import { ContractorsPage } from './pages/ContractorsPage';
 import { AiPage } from './pages/AiPage';
+import { PsmPage } from './pages/PsmPage';
+import { ShiftPage } from './pages/ShiftPage';
+import { VisionPage } from './pages/VisionPage';
+import { useMercure } from './lib/useMercure';
 
 function Private({ children }: { children: React.ReactNode }) {
   if (!getToken()) return <Navigate to="/login" replace />;
@@ -20,11 +25,19 @@ function Private({ children }: { children: React.ReactNode }) {
 function Shell() {
   const navigate = useNavigate();
   const { me } = useAuth();
+  const [notice, setNotice] = useState<string | null>(null);
+  useMercure((payload) => {
+    setNotice(payload.type ? `رویداد زنده: ${payload.type}` : 'رویداد زنده');
+    window.setTimeout(() => setNotice(null), 4000);
+  });
   const links = [
     { to: '/', label: 'داشبورد' },
     { to: '/permits', label: 'مجوز کار' },
     { to: '/moc', label: 'مدیریت تغییر' },
+    { to: '/psm', label: 'PSM / HAZOP' },
+    { to: '/shift', label: 'شیفت' },
     { to: '/incidents', label: 'حوادث' },
+    { to: '/vision', label: 'Vision' },
     { to: '/contractors', label: 'پیمانکاران' },
     { to: '/ai', label: 'دستیار دانش' },
   ];
@@ -58,6 +71,7 @@ function Shell() {
         </div>
       </aside>
       <main className="p-8">
+        {notice ? <p className="mb-4 rounded-lg bg-ember/20 text-ember px-3 py-2 text-sm">{notice}</p> : null}
         <Outlet />
       </main>
     </div>
@@ -78,6 +92,9 @@ export default function App() {
           <Route path="incidents" element={<IncidentsPage />} />
           <Route path="incidents/:id" element={<IncidentDetailPage />} />
           <Route path="contractors" element={<ContractorsPage />} />
+          <Route path="psm" element={<PsmPage />} />
+          <Route path="shift" element={<ShiftPage />} />
+          <Route path="vision" element={<VisionPage />} />
           <Route path="ai" element={<AiPage />} />
         </Route>
       </Routes>

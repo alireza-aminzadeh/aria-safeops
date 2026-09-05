@@ -30,12 +30,16 @@ export function PermitsPage() {
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
-    await api('/permits', {
-      method: 'POST',
-      body: JSON.stringify({ permitType, equipmentTag, locationPlotRef, workDescription }),
-    });
-    setWorkDescription('');
-    await load();
+    try {
+      await api('/permits', {
+        method: 'POST',
+        body: JSON.stringify({ permitType, equipmentTag, locationPlotRef, workDescription }),
+      });
+      setWorkDescription('');
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'خطا در ثبت مجوز');
+    }
   }
 
   return (

@@ -30,6 +30,7 @@ services:
       - frontend_build:/var/www/spa:ro
     depends_on:
       - app
+      - mercure
     deploy:
       resources:
         limits:
@@ -51,6 +52,17 @@ services:
       ARIA_RUNTIME: production
       APP_ENV: prod
       APP_DEBUG: "0"
+      PETROOPS_INTEGRATION_KEY: ${PETROOPS_INTEGRATION_KEY:-}
+      AI_GATEWAY_ENABLED: ${AI_GATEWAY_ENABLED:-true}
+      AI_GATEWAY_URL: ${AI_GATEWAY_URL:-}
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
+      AI_GATEWAY_TIMEOUT_MS: ${AI_GATEWAY_TIMEOUT_MS:-8000}
+      MERCURE_ENABLED: ${MERCURE_ENABLED:-true}
+      MERCURE_URL: ${MERCURE_URL:-http://mercure/.well-known/mercure}
+      MERCURE_PUBLIC_URL: ${MERCURE_PUBLIC_URL:-https://hse.aria-ai.ir/.well-known/mercure}
+      MERCURE_JWT_SECRET: ${MERCURE_JWT_SECRET:-}
+      VISION_SIMULATOR: ${VISION_SIMULATOR:-true}
+      VISION_GATEWAY_URL: ${VISION_GATEWAY_URL:-}
     # Entrypoint as root copies SPA + JWT keys, then php-fpm workers run as uid 1000 (appuser).
     user: "0:0"
     volumes:
@@ -115,21 +127,24 @@ services:
     networks:
       - aria_safeops_net
 
-  # ---- Mercure (Real-time اعلان‌ها) — فاز ۲، فعلاً غیرفعال ----
-  # mercure:
-  #   image: dunglas/mercure:v0.16
-  #   restart: unless-stopped
-  #   environment:
-  #     MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET}
-  #     MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET}
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: 128M
-  #       reservations:
-  #         memory: 64M
-  #   networks:
-  #     - aria_safeops_net
+  # Mercure — اعلان لحظه‌ای فاز ۲. پورت به هاست اکسپوز نمی‌شود.
+  mercure:
+    image: dunglas/mercure:v0.16.4
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ':80'
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET}
+      MERCURE_EXTRA_DIRECTIVES: |
+        cors_origins https://hse.aria-ai.ir
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+    networks:
+      - aria_safeops_net
 
 volumes:
   pgdata:

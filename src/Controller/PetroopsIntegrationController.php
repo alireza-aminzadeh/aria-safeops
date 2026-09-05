@@ -68,9 +68,12 @@ final class PetroopsIntegrationController
 
     private function assertApiKey(Request $request): void
     {
-        $expected = (string) ($_ENV['PETROOPS_INTEGRATION_KEY'] ?? $_SERVER['PETROOPS_INTEGRATION_KEY'] ?? '');
-        $provided = $request->headers->get('X-Aria-Api-Key', '');
-        if ($expected === '' || !hash_equals($expected, $provided)) {
+        $expected = (string) (
+            getenv('PETROOPS_INTEGRATION_KEY')
+            ?: ($_ENV['PETROOPS_INTEGRATION_KEY'] ?? $_SERVER['PETROOPS_INTEGRATION_KEY'] ?? '')
+        );
+        $provided = (string) $request->headers->get('X-Aria-Api-Key', '');
+        if ($expected === '' || $provided === '' || !hash_equals($expected, $provided)) {
             throw new AccessDeniedHttpException('invalid integration key');
         }
     }

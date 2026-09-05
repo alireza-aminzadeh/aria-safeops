@@ -18,6 +18,9 @@ const tone: Record<string, string> = {
   reported: 'bg-ember/20 text-ember',
   under_investigation: 'bg-ember/20 text-ember',
   capa_assigned: 'bg-mint/20 text-mint',
+  accepted: 'bg-mint/25 text-mint',
+  open: 'bg-ember/20 text-ember',
+  acknowledged: 'bg-panel-2 text-muted',
 };
 
 export function StatusBadge({ value, kind = 'permit' }: { value: string; kind?: 'permit' | 'moc' | 'incident' }) {

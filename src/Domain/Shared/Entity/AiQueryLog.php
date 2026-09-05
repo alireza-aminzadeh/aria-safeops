@@ -39,4 +39,10 @@ class AiQueryLog
         $this->userId = $userId;
         $this->createdAt = new \DateTimeImmutable();
     }
+
+    public function complete(string $status, ?string $responseText): void
+    {
+        $this->status = $status;
+        $this->responseText = $responseText;
+    }
 }

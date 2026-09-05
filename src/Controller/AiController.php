@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
+use App\Domain\Shared\Entity\AiQueryLog;
 use App\Domain\Shared\Entity\User;
 use App\Infrastructure\AiGateway\AiGatewayInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Domain\Shared\Entity\AiQueryLog;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,19 +20,55 @@ final class AiController extends AbstractController
     ) {
     }
 
+    #[Route('/api/ai/status', methods: ['GET'])]
+    public function status(): JsonResponse
+    {
+        $enabled = $this->gateway->isEnabled();
+
+        return $this->json([
+            'enabled' => $enabled,
+            'available' => $enabled,
+            'message' => $enabled
+                ? 'دستیار دانش HSE روی همین سرور فعال است (بستهٔ محلی). اگر AI_GATEWAY_URL ست شود به سرویس مرکزی وصل می‌شود.'
+                : 'سرویس دستیار هوشمند HSE غیرفعال است.',
+        ]);
+    }
+
     #[Route('/api/ai/knowledge-query', methods: ['POST'])]
-    public function __invoke(Request $request, #[CurrentUser] User $user): JsonResponse
+    public function query(Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $payload = json_decode($request->getContent(), true) ?? [];
         $query = trim((string) ($payload['query'] ?? ''));
-        $this->em->persist(new AiQueryLog($user->getTenant()->getId(), $query, $user->getId()));
-        $this->em->flush();
+        $log = new AiQueryLog($user->getTenant()->getId(), $query, $user->getId());
         $answer = $this->gateway->askKnowledgeBase($query);
+        $log->complete($answer->available ? 'ok' : 'unavailable', $answer->text ?? $answer->unavailableReason);
+        $this->em->persist($log);
+        $this->em->flush();
+
+        if (!$answer->available) {
+            return $this->json([
+                'available' => false,
+                'message' => $answer->unavailableReason,
+                'citations' => [],
+            ], 503);
+        }
 
         return $this->json([
-            'statusCode' => 503,
-            'message' => $answer->unavailableReason,
-            'available' => false,
-        ], 503);
+            'available' => true,
+            'text' => $answer->text,
+            'citations' => $answer->citations,
+        ]);
+    }
+
+    #[Route('/api/ai/classify-risk', methods: ['POST'])]
+    public function classify(Request $request): JsonResponse
+    {
+        $payload = json_decode($request->getContent(), true) ?? [];
+        $result = $this->gateway->classifyRiskText((string) ($payload['text'] ?? ''));
+        if (!$result->available) {
+            return $this->json(['available' => false, 'message' => $result->unavailableReason], 503);
+        }
+
+        return $this->json(['available' => true, 'level' => $result->level]);
     }
 }

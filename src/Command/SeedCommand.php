@@ -4,10 +4,16 @@ namespace App\Command;
 
 use App\Domain\Contractor\Entity\Contractor;
 use App\Domain\Contractor\Entity\ContractorCertification;
+use App\Domain\Contractor\Entity\ContractorTrainingRecord;
+use App\Domain\Moc\Entity\HazopRegisterItem;
 use App\Domain\Permit\Entity\PermitType;
+use App\Domain\Psm\Entity\BowtieBarrier;
+use App\Domain\Psm\Entity\LopaScenario;
 use App\Domain\Shared\Entity\Tenant;
 use App\Domain\Shared\Entity\User;
 use App\Domain\Shared\OperatorCredentials;
+use App\Domain\Shift\Entity\ToolboxTalk;
+use App\Domain\Vision\Entity\VisionCamera;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -73,6 +79,55 @@ final class SeedCommand extends Command
                 $contractor,
                 'H2S Awareness',
                 new \DateTimeImmutable('+20 days'),
+            ));
+        }
+        if ($contractor->getTrainingRecords()->isEmpty()) {
+            $this->em->persist(new ContractorTrainingRecord(
+                $contractor,
+                'PTW-01',
+                'مجوز کار و گاز‌تست',
+                new \DateTimeImmutable('-40 days'),
+                new \DateTimeImmutable('+320 days'),
+            ));
+        }
+
+        if (!$this->em->getRepository(HazopRegisterItem::class)->findOneBy(['deviation' => 'More flow'])) {
+            $hazop = new HazopRegisterItem(
+                'پمپ خوراک P-101',
+                'More flow',
+                'باز شدن کنترل ولو تخلیه',
+                'فشار بالای ستون و فعال‌شدن PSV',
+                'PSV-101، آلارم فشار، Trip پمپ',
+                'high',
+            );
+            $hazop->setTenant($tenant);
+            $hazop->setEquipmentTag('P-101');
+            $this->em->persist($hazop);
+            $lopa = new LopaScenario($hazop, 'شکست کنترل سطح', 3, '1e-4 /yr', 'medium');
+            $hazop->addLopa($lopa);
+            $this->em->persist($lopa);
+            $prevention = new BowtieBarrier($hazop, 'prevention', 'کنترل سطح ستون + اینترلاک', 'high');
+            $mitigation = new BowtieBarrier($hazop, 'mitigation', 'PSV و فلر', 'high');
+            $hazop->addBarrier($prevention);
+            $hazop->addBarrier($mitigation);
+            $this->em->persist($prevention);
+            $this->em->persist($mitigation);
+        }
+
+        if (!$this->em->getRepository(VisionCamera::class)->findOneBy(['name' => 'گیت واحد تقطیر'])) {
+            $this->em->persist(new VisionCamera($tenant, 'گیت واحد تقطیر', 'CDU gate', 'rtsp://camera.local/cdu-gate'));
+            $this->em->persist(new VisionCamera($tenant, 'محوطه P-101', 'process pump alley', 'rtsp://camera.local/p101'));
+        }
+
+        if (!$this->em->getRepository(ToolboxTalk::class)->findOneBy(['topic' => 'H2S و گاز‌تست'])) {
+            $this->em->persist(new ToolboxTalk(
+                $tenant,
+                'H2S و گاز‌تست',
+                'اتاق کنترل',
+                new \DateTimeImmutable('-1 day'),
+                'علیرضا',
+                8,
+                'یادآوری حد LEL و H2S قبل از کار گرم',
             ));
         }
 

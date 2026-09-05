@@ -46,10 +46,16 @@ class Contractor
     #[Groups(['contractor:read'])]
     private Collection $certifications;
 
+    /** @var Collection<int, ContractorTrainingRecord> */
+    #[ORM\OneToMany(targetEntity: ContractorTrainingRecord::class, mappedBy: 'contractor', cascade: ['persist'])]
+    #[Groups(['contractor:read'])]
+    private Collection $trainingRecords;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
         $this->certifications = new ArrayCollection();
+        $this->trainingRecords = new ArrayCollection();
     }
 
     public function getId(): Uuid { return $this->id; }
@@ -58,6 +64,9 @@ class Contractor
     public function getHsePrequalificationScore(): ?string { return $this->hsePrequalificationScore; }
     public function setHsePrequalificationScore(?string $hsePrequalificationScore): void { $this->hsePrequalificationScore = $hsePrequalificationScore; }
     public function addCertification(ContractorCertification $certification): void { $this->certifications->add($certification); }
+    public function addTraining(ContractorTrainingRecord $record): void { $this->trainingRecords->add($record); }
     /** @return Collection<int, ContractorCertification> */
     public function getCertifications(): Collection { return $this->certifications; }
+    /** @return Collection<int, ContractorTrainingRecord> */
+    public function getTrainingRecords(): Collection { return $this->trainingRecords; }
 }
