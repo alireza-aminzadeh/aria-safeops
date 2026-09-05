@@ -44,7 +44,7 @@
 - ✅ **جای‌گذاری معماری** برای RAG/LLM (Interface + Stub + جدول دیتابیس خالی) — بدون هیچ inference واقعی
 - ❌ عدم پیاده‌سازی HSE Vision (نیاز به دوربین/مدل Vision واقعی)
 - ❌ عدم اتصال واقعی RAG/LLM (به‌صورت عمدی موکول به فاز بعد طبق [`10-roadmap.md`](10-roadmap.md))
-- ❌ استقرار Production روی سرور `hse` هنوز عملیات دستی فاز ۰ است (Docker/UFW/DNS)
+- ✅ استقرار Production روی `https://hse.aria-ai.ir` (`91.107.130.11`)
 
 ## ۱.۶ ارتباط با Aria PetroOps
 طبق پیوندهای بین‌سامانه‌ای سند مرجع:
