@@ -1,0 +1,65 @@
+# ==== Symfony ====
+/vendor/
+/var/
+/config/jwt/*.pem
+.env
+.env.local
+.env.*.local
+.env.local.php
+.env.dev
+
+# ==== Frontend (React/Vite) ====
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# ==== Docker / محیط محلی ====
+docker-compose.override.local.yml
+.docker/data/
+
+# ==== IDE / OS junk ====
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+Thumbs.db
+.DS_Store
+
+# ==== تست / کش ====
+.phpunit.result.cache
+/.php-cs-fixer.cache
+
+# ==== Secrets — هرگز کامیت نشود ====
+*.pem
+*.key
+!config/jwt/README.md
+.secrets/
+infra/certbot/conf/**
+!infra/certbot/conf/.gitkeep
+infra/certbot/www/**
+!infra/certbot/www/.gitkeep
+infra/certbot/work/
+infra/certbot/logs/
+# ==== Composer local phar ====
+composer.phar
+
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

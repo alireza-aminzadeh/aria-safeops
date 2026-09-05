@@ -1,0 +1,13 @@
+{
+  "name": "ایمن‌کار | Aria SafeOps",
+  "short_name": "ایمن‌کار",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#140b0a",
+  "theme_color": "#e07a3d",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

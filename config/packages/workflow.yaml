@@ -1,0 +1,91 @@
+framework:
+    workflows:
+        permit_to_work:
+            type: state_machine
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Domain\Permit\Entity\Permit
+            initial_marking: draft
+            places:
+                - draft
+                - submitted
+                - hse_review
+                - approved
+                - active
+                - suspended
+                - closed
+                - cancelled
+                - rejected
+            transitions:
+                submit:
+                    from: draft
+                    to: submitted
+                start_review:
+                    from: submitted
+                    to: hse_review
+                request_changes:
+                    from: hse_review
+                    to: draft
+                approve:
+                    from: hse_review
+                    to: approved
+                reject:
+                    from: hse_review
+                    to: rejected
+                activate:
+                    from: approved
+                    to: active
+                suspend:
+                    from: active
+                    to: suspended
+                resume:
+                    from: suspended
+                    to: active
+                close:
+                    from: [active, suspended]
+                    to: closed
+                cancel:
+                    from: [draft, submitted]
+                    to: cancelled
+
+        moc_workflow:
+            type: state_machine
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Domain\Moc\Entity\MocRequest
+            initial_marking: proposed
+            places:
+                - proposed
+                - risk_assessment
+                - approval
+                - implementation
+                - pssr
+                - closed
+                - rejected
+            transitions:
+                start_risk_assessment:
+                    from: proposed
+                    to: risk_assessment
+                submit_for_approval:
+                    from: risk_assessment
+                    to: approval
+                approve:
+                    from: approval
+                    to: implementation
+                reject:
+                    from: approval
+                    to: rejected
+                start_pssr:
+                    from: implementation
+                    to: pssr
+                close:
+                    from: pssr
+                    to: closed

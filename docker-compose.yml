@@ -1,0 +1,142 @@
+# =====================================================================
+# Aria SafeOps — Docker Compose (PRODUCTION-SAFE base file)
+#
+# طبق قواعد امنیتی پروژه:
+#   - هیچ سرویس Backend (Postgres/Redis) پورتی به هاست اکسپوز نمی‌کند
+#   - همهٔ سرویس‌ها فقط از طریق شبکهٔ داخلی Docker با هم صحبت می‌کنند
+#   - Redis همیشه با رمز (requirepass) اجرا می‌شود
+#   - restart: unless-stopped برای همهٔ سرویس‌ها
+#   - هر سرویس دارای سقف/رزرو حافظه (deploy.resources.limits/reservations)
+#     متناسب با سرور واقعی (91.107.130.11 — 2 vCPU / ~3.7GiB RAM)
+#   - تگ نسخه‌دار برای همهٔ ایمیج‌ها (هرگز :latest)
+#
+# اجرای Production:  docker compose -f docker-compose.yml up -d
+# اجرای Local Dev:    docker compose up -d   (override.yml خودکار merge می‌شود)
+# =====================================================================
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    command: ["sh", "/nginx-prod.sh"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/prod:/etc/nginx/templates:ro
+      - ./infra/docker/nginx-prod.sh:/nginx-prod.sh:ro
+      - ./infra/certbot/conf:/etc/nginx/ssl:ro
+      - ./infra/certbot/www:/var/www/certbot:ro
+      - frontend_build:/var/www/spa:ro
+    depends_on:
+      - app
+    deploy:
+      resources:
+        limits:
+          memory: 96M
+        reservations:
+          memory: 48M
+    networks:
+      - aria_safeops_net
+
+  app:
+    image: ghcr.io/alireza-aminzadeh/aria-safeops-app:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ARIA_RUNTIME: production
+      APP_ENV: prod
+      APP_DEBUG: "0"
+    # Entrypoint as root copies SPA + JWT keys, then php-fpm workers run as uid 1000 (appuser).
+    user: "0:0"
+    volumes:
+      - frontend_build:/var/www/spa
+      - jwt_keys:/var/www/app/config/jwt
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 640M
+        reservations:
+          memory: 320M
+    networks:
+      - aria_safeops_net
+
+  postgres:
+    image: timescale/timescaledb:2.17.2-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    # هیچ پورتی به هاست اکسپوز نمی‌شود — فقط شبکهٔ داخلی
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 384M
+    networks:
+      - aria_safeops_net
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--maxmemory", "160mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    # هیچ پورتی به هاست اکسپوز نمی‌شود
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+        reservations:
+          memory: 100M
+    networks:
+      - aria_safeops_net
+
+  # ---- Mercure (Real-time اعلان‌ها) — فاز ۲، فعلاً غیرفعال ----
+  # mercure:
+  #   image: dunglas/mercure:v0.16
+  #   restart: unless-stopped
+  #   environment:
+  #     MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET}
+  #     MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET}
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 128M
+  #       reservations:
+  #         memory: 64M
+  #   networks:
+  #     - aria_safeops_net
+
+volumes:
+  pgdata:
+  redisdata:
+  frontend_build:
+  jwt_keys:
+
+networks:
+  aria_safeops_net:
+    driver: bridge

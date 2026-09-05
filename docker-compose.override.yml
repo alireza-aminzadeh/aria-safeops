@@ -1,0 +1,76 @@
+# =====================================================================
+# Aria SafeOps — افزوده‌های محیط توسعهٔ محلی (Docker Desktop Windows)
+#
+# UI: http://localhost  (Nginx روی 127.0.0.1:80؛ PHP-FPM در Docker؛ Vite روی میزبان)
+# همزمان با PetroOps اجرا نشود — هر دو روی پورت ۸۰ لوکال هستند.
+# فرانت روی میزبان است چون کانتینر Node به npm دسترسی ندارد.
+#
+# Postgres debug: 127.0.0.1:5433
+# Redis debug:    127.0.0.1:6380
+# طبق قاعدهٔ امنیتی: فقط bind به 127.0.0.1
+# =====================================================================
+
+services:
+  nginx:
+    ports: !override
+      - "127.0.0.1:80:80"
+    command: ["nginx", "-g", "daemon off;"]
+    volumes:
+      - ./infra/nginx/dev:/etc/nginx/conf.d:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !override
+      - app
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    user: "0:0"
+    environment:
+      APP_ENV: dev
+      ARIA_RUNTIME: local
+      SEED_ALIREZA_PASSWORD: alireza
+    command: ["sh", "/var/www/app/infra/docker/app-dev.sh"]
+    volumes:
+      - ./:/var/www/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 256M
+
+  frontend:
+    profiles: ["full-docker"]
+    image: node:22-alpine
+    restart: unless-stopped
+    working_dir: /workspace/frontend
+    user: "0:0"
+    command: ["sh", "/workspace/infra/docker/frontend-dev.sh"]
+    volumes:
+      - ./:/workspace
+    environment:
+      VITE_API_BASE: /api
+    networks:
+      - aria_safeops_net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+
+  postgres:
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:6380:6379"

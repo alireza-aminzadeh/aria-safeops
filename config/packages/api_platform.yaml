@@ -1,0 +1,29 @@
+api_platform:
+    title: Aria SafeOps
+    description: سامانه ایمنی فرآیند و مجوز کار الکترونیک
+    version: 0.1.0
+    defaults:
+        stateless: true
+        extra_properties:
+            standard_put: true
+    mapping:
+        paths:
+            - '%kernel.project_dir%/src/Domain'
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+        jsonproblem: ['application/problem+json']
+    docs_formats:
+        jsonld: ['application/ld+json']
+        jsonopenapi: ['application/vnd.openapi+json']
+        html: ['text/html']
+    patch_formats:
+        json: ['application/merge-patch+json']
+        jsonapi: ['application/vnd.api+json']
+    error_formats:
+        jsonproblem: ['application/problem+json']

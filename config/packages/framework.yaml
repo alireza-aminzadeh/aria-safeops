@@ -1,0 +1,23 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    trusted_proxies: '%env(default::TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port']
+    http_method_override: false
+    handle_all_throwables: true
+    php_errors:
+        log: true
+    uid:
+        default_uuid_version: 7
+    serializer:
+        enable_attributes: true
+    validation:
+        email_validation_mode: html5
+    rate_limiter:
+        login:
+            policy: 'sliding_window'
+            limit: 8
+            interval: '1 minute'
+        ai:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 minute'

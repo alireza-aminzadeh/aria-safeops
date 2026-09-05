@@ -1,0 +1,26 @@
+@import "@fontsource-variable/vazirmatn";
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Vazirmatn Variable", Tahoma, sans-serif;
+  --color-ink: #140b0a;
+  --color-panel: #241412;
+  --color-panel-2: #321c18;
+  --color-line: #5a332c;
+  --color-ember: #e07a3d;
+  --color-mint: #3d9a7a;
+  --color-rust: #d15b4a;
+  --color-paper: #f3ebe4;
+  --color-muted: #b79b90;
+}
+
+html, body, #root { min-height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(900px 500px at 80% -20%, #4a2218 0%, transparent 45%), var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+}
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; color: inherit; }
+table { border-collapse: collapse; }

@@ -1,0 +1,25 @@
+parameters:
+    locale: fa
+    env(TRUSTED_PROXIES): '127.0.0.1,REMOTE_ADDR'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/Domain/*/Entity/'
+
+    App\Infrastructure\AiGateway\AiGatewayInterface:
+        class: App\Infrastructure\AiGateway\NullAiGatewayAdapter
+
+    App\Controller\PermitTransitionController:
+        arguments:
+            $permitToWorkStateMachine: '@state_machine.permit_to_work'
+
+    App\Controller\MocTransitionController:
+        arguments:
+            $mocWorkflowStateMachine: '@state_machine.moc_workflow'

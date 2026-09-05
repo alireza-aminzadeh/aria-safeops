@@ -1,0 +1,44 @@
+# ==============================================================
+# اجبار LF برای همهٔ فایل‌های متنی — الزامی برای سازگاری صفر-اصطکاک
+# بین توسعهٔ ویندوز (Docker Desktop) و استقرار Production روی لینوکس
+# ==============================================================
+
+* text=auto eol=lf
+
+# اسکریپت‌های شل و entrypoint — همیشه LF، وگرنه با خطای
+# "exec format error" یا "$'\r': command not found" روی لینوکس مواجه می‌شوید
+*.sh text eol=lf
+entrypoint*.sh text eol=lf
+*.sh linguist-language=Shell
+
+# فایل‌های کانفیگ
+*.yml text eol=lf
+*.yaml text eol=lf
+*.env text eol=lf
+*.env.example text eol=lf
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+
+# کد PHP / کانفیگ Symfony
+*.php text eol=lf
+*.twig text eol=lf
+*.xml text eol=lf
+composer.json text eol=lf
+composer.lock text eol=lf -diff
+
+# فرانت‌اند
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+
+# باینری‌ها — دست‌نخورده
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.pem binary
