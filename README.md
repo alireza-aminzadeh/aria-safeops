@@ -13,7 +13,7 @@
 | بک‌اند | Symfony 7.4 LTS + API Platform + Workflow + JWT |
 | فرانت‌اند | React 19 + Vite + Tailwind v4 (RTL) + داشبورد |
 | RAG/LLM | Stub — `/api/ai/knowledge-query` همیشه `503` |
-| Production | `https://hse.aria-ai.ir` روی `91.107.130.11` (CI/CD به GHCR) |
+| Production | فعال: [https://hse.aria-ai.ir](https://hse.aria-ai.ir) — CI/CD به GHCR |
 
 ## اجرای محلی
 
