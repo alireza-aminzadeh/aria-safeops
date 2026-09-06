@@ -1,8 +1,12 @@
 # =====================================================================
 # Aria SafeOps — افزوده‌های محیط توسعهٔ محلی (Docker Desktop Windows)
 #
-# UI: http://localhost  (Nginx روی 127.0.0.1:80؛ PHP-FPM در Docker؛ Vite روی میزبان)
-# همزمان با PetroOps اجرا نشود — هر دو روی پورت ۸۰ لوکال هستند.
+# UI: http://localhost:8080  (Nginx روی 127.0.0.1:8080؛ PHP-FPM در Docker؛ Vite روی میزبان)
+# پورت ۸۰ عمداً استفاده نمی‌شود: هم PetroOps محلی و هم ابزارهای دیگر روی این
+# ماشین (مثلاً Laragon/httpd) معمولاً ۸۰ را اشغال می‌کنند؛ ۸۰۸۰ این تصادم را
+# کامل حذف می‌کند بدون این‌که لازم باشد سرویس دیگری متوقف شود. این تغییر فقط
+# نگاشتِ پورت میزبان است — Nginx داخل کانتینر همچنان روی ۸۰ گوش می‌دهد و روی
+# Production (docker-compose.yml پایه، بدون override) تغییری نمی‌کند.
 # فرانت روی میزبان است چون کانتینر Node به npm دسترسی ندارد.
 #
 # Postgres debug: 127.0.0.1:5433
@@ -13,7 +17,7 @@
 services:
   nginx:
     ports: !override
-      - "127.0.0.1:80:80"
+      - "127.0.0.1:8080:80"
     command: ["nginx", "-g", "daemon off;"]
     volumes:
       - ./infra/nginx/dev:/etc/nginx/conf.d:ro
