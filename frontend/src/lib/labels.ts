@@ -44,6 +44,16 @@ export const incidentType: Record<string, string> = {
   injury: 'آسیب',
 };
 
+export const rootCauseCategory: Record<string, string> = {
+  human_factor: 'عامل انسانی',
+  procedure_gap: 'نقص دستورالعمل',
+  equipment_failure: 'خرابی تجهیز',
+  design: 'نقص طراحی',
+  training: 'کمبود آموزش',
+  management_system: 'نظام مدیریت HSE',
+  external: 'عامل بیرونی',
+};
+
 export const permitTransitions: Record<string, string> = {
   submit: 'ارسال',
   start_review: 'شروع بررسی',
@@ -70,6 +80,28 @@ export const changeType: Record<string, string> = {
   temporary: 'موقت',
   permanent: 'دائم',
   emergency: 'اضطراری',
+};
+
+export const psmRating: Record<string, string> = {
+  compliant: 'منطبق',
+  partial: 'نسبی',
+  non_compliant: 'غیرمنطبق',
+  not_applicable: 'قابل‌اجرا نیست',
+};
+
+export const psmAuditStatus: Record<string, string> = {
+  draft: 'پیش‌نویس',
+  in_progress: 'در حال انجام',
+  completed: 'تکمیل‌شده',
+};
+
+export const scenarioType: Record<string, string> = {
+  fire: 'آتش‌سوزی',
+  gas_release: 'نشت گاز',
+  spill: 'ریزش/نشت مایع',
+  medical: 'پزشکی',
+  security: 'امنیتی',
+  natural_disaster: 'حوادث طبیعی',
 };
 
 export function faDate(value?: string | null): string {

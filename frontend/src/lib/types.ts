@@ -58,8 +58,21 @@ export type Incident = {
   description: string;
   location?: string | null;
   rcaNotes?: string | null;
+  rootCauseWhys?: string[];
+  rootCauseCategory?: string | null;
+  lostDays?: number;
+  recordable?: boolean;
   reportedAt?: string;
   capaActions?: Capa[];
+};
+
+export type SafetyPeriodMetric = {
+  id: string;
+  periodStart: string;
+  periodEnd: string;
+  hoursWorked: string;
+  employeeCount?: number | null;
+  createdAt?: string;
 };
 
 export type Certification = {
@@ -114,6 +127,13 @@ export type Api754 = {
   tier3: number;
   tier4: number;
   pseRatePerMillionHours: number;
+  safety: {
+    hoursWorkedTtm: number | null;
+    lostTimeInjuriesTtm: number;
+    recordableCountTtm: number;
+    ltifr: number | null;
+    trir: number | null;
+  };
   leading: {
     openHighHazop: number;
     expiredCertifications: number;
@@ -185,4 +205,83 @@ export type AuditItem = {
   action: string;
   createdAt: string;
   payload?: Record<string, unknown>;
+};
+
+export type PsmAuditFinding = {
+  id: string;
+  elementCode: string;
+  elementNameFa: string;
+  rating: string;
+  notes?: string | null;
+  correctiveAction?: string | null;
+  dueDate?: string | null;
+  status: string;
+};
+
+export type PsmAudit = {
+  id: string;
+  title: string;
+  auditDate: string;
+  auditorName: string;
+  status: string;
+  overallScorePercent?: number | null;
+  openFindings?: number;
+  findings?: PsmAuditFinding[];
+};
+
+export type ErpPlan = {
+  id: string;
+  scenarioType: string;
+  title: string;
+  description: string;
+  reviewedAt?: string | null;
+  nextReviewDue: string;
+  overdue: boolean;
+};
+
+export type EmergencyDrill = {
+  id: string;
+  erpPlanId?: string | null;
+  scenario: string;
+  heldAt: string;
+  participantCount: number;
+  durationMinutes: number;
+  leaderName: string;
+  findings?: string | null;
+};
+
+export type EffluentReading = {
+  id: string;
+  parameter: string;
+  value: number;
+  unit: string;
+  limitValue?: number | null;
+  location: string;
+  compliant: boolean;
+  sampledAt: string;
+};
+
+export type EmergencyOverview = {
+  totalPlans: number;
+  overduePlans: number;
+  drillsLastYear: number;
+  nonCompliantReadingsLastYear: number;
+};
+
+export type EquipmentStatus = {
+  equipmentTag: string;
+  hold: { status: string; blocked: boolean; score?: number | null; summary?: string | null };
+  permits: Array<{ id: string; status: string; permitTypeCode: string; validFrom?: string | null; validTo?: string | null }>;
+  mocs: Array<{ id: string; status: string; changeType: string; description: string }>;
+  recentIncidents: Array<{ id: string; type: string; severity: string; status: string; reportedAt: string }>;
+};
+
+export type SignatureItem = {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: string;
+  signerName: string;
+  signedAt: string;
+  contentHash: string;
 };
