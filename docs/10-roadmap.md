@@ -22,14 +22,14 @@
 - [x] رجیستر HAZOP/LOPA/Bowtie کامل + KPI مطابق API 754
 - [x] HSE Vision (ثبت دوربین/RTSP + شبیه‌ساز PPE؛ ingest از سرویس Vision وقتی URL/کلید ست شود)
 - [x] تحویل شیفت/Logbook + Toolbox Talk
-- [x] فعال‌سازی AI Gateway: بستهٔ دانش HSE on-prem + `HttpAiGatewayAdapter` وقتی `AI_GATEWAY_URL` ست شود
-- [x] اتصال بین‌سامانه‌ای واقعی به PetroOps (بلوکه‌کردن مجوز روی تجهیز با آنومالی باز)
+- [x] فعال‌سازی AI Gateway: بستهٔ دانش HSE on-prem (`AiGatewayFactory` سه‌سطحی: خاموش/on-prem/`HttpAiGatewayAdapter` وقتی `AI_GATEWAY_URL` ست شود)
+- [x] اتصال بین‌سامانه‌ای واقعی به PetroOps: بلوکه‌کردن Permit/MOC روی تجهیز با آنومالی باز — هم در **ایجاد** (`TenantAwarePersistProcessor`) و هم در **فعال‌سازی/از سرگیری/ورود به اجرا** (`PermitWorkflowSubscriber`, `MocWorkflowSubscriber` از طریق `EquipmentHoldChecker` مشترک) تا نگه‌داشتی که بعد از صدور مجوز باز می‌شود هم گرفته شود
 - [x] Mercure برای اعلان real-time
+- [x] واکنش اضطراری و محیط‌زیست (ERP plans با چرخهٔ بازبینی، مانور/Drill، پایش پساب با Policy تطبیق حد مجاز) — جلوتر از برنامهٔ اولیه در همین فاز پیاده‌سازی شد (`EmergencyController` + `Domain/Emergency/*`)
 
 ## فاز ۳ — بلوغ
-- [ ] واکنش اضطراری و محیط‌زیست (ERP، مانور، پایش پساب)
 - [ ] کوپایلوت عاملی (Agentic) برای پیش‌نویس خودکار مجوز از تاریخچهٔ JSA
-- [ ] چندمستأجری کامل (چند مشتری هم‌زمان) — RLS از فاز ۱ آماده شده، فقط فعال‌سازی onboarding چندگانه
+- [ ] چندمستأجری کامل (چند مشتری هم‌زمان) — RLS از فاز ۱ آماده شده و برای Permit/MOC/Incident/User در `TenantQueryExtension` فعال است؛ باقی‌مانده: تصمیم دربارهٔ مدل چندتننتی `Contractor` (فعلاً بدون ستون tenant، مشترک بین تننت‌ها) + فعال‌سازی جریان onboarding خودکار چندگانه
 
 ## معیار موفقیت فاز ۱ (Definition of Done)
 - یک مجوز کار می‌تواند از `draft` تا `closed` بدون خطا و با Audit Trail کامل عبور کند.

@@ -1,7 +1,9 @@
 # ۶) جای‌گذاری RAG/LLM بدون پیاده‌سازی (AI Gateway Placeholder)
 
 ## ۶.۱ تصمیم صریح
-طبق دستور مستقیم پروژه: **بخش RAG/LLM در این فاز پیاده‌سازی نمی‌شود**، اما جای آن در معماری، دیتابیس و UI به‌طور کامل رزرو می‌شود تا وصل کردن سرویس واقعی در آینده فقط یک «سوییچ کانفیگ» باشد، نه ری‌فکتور.
+طبق دستور مستقیم پروژه: **بخش RAG/LLM واقعی (embedding + vector DB + مدل مولد) در این فاز پیاده‌سازی نمی‌شود**، اما جای آن در معماری، دیتابیس و UI به‌طور کامل رزرو شده و پشت `AiGatewayInterface` قرار دارد تا وصل کردن سرویس واقعی در آینده فقط یک «سوییچ کانفیگ» باشد، نه ری‌فکتور.
+
+> **به‌روزرسانی (پیاده‌سازی واقعی کد):** برخلاف نسخهٔ اولیهٔ این سند، پیاده‌سازی فعلی دیگر فقط یک Stub تک‌حالته نیست. یک **`AiGatewayFactory`** سه سطح را مدیریت می‌کند (پایین را ببینید) و سطح دوم آن — «بستهٔ دانش محلی» (`OnPremAiGatewayAdapter` + `HseKnowledgePack`) — کاملاً **واقعی و فعال** است: بازیابی متن با تطبیق کلیدواژه روی چند سند مرجع HSE (API 754، NFPA، ...) و طبقه‌بندی ریسک با regex روی کلمات کلیدی (گاز/H2S/کار گرم/فضای بسته/ارتفاع/حفاری/برق). این هنوز RAG/LLM واقعی **نیست** (نه embedding، نه مدل مولد، نه جستجوی معنایی) و طبق مصوبهٔ پروژه در گزارش پیشرفت به‌عنوان RAG/LLM شمرده نمی‌شود، اما دیگر «۵۰۳ همیشگی» هم نیست.
 
 ## ۶.۲ رابط (Interface) — قرارداد پایدار
 
@@ -44,48 +46,53 @@ final class AiAnswer
 }
 ```
 
-## ۶.۳ پیاده‌سازی فعلی — Stub غیرفعال
+## ۶.۳ پیاده‌سازی فعلی — Factory سه‌سطحی
+
+`AiGatewayFactory::create()` بسته به کانفیگ، یکی از سه پیاده‌سازی `AiGatewayInterface` را برمی‌گرداند:
 
 ```php
 namespace App\Infrastructure\AiGateway;
 
-/**
- * پیاده‌سازی پیش‌فرض تا زمان راه‌اندازی سرویس AI Gateway واقعی.
- * فعال‌سازی سرویس واقعی فقط با تغییر AI_GATEWAY_ENABLED=true در .env
- * و تعریف HttpAiGatewayAdapter به‌جای این کلاس در services.yaml.
- */
-final class NullAiGatewayAdapter implements AiGatewayInterface
+final class AiGatewayFactory
 {
-    public function isEnabled(): bool
-    {
-        return false;
-    }
+    public function __construct(
+        private readonly NullAiGatewayAdapter $null,
+        private readonly OnPremAiGatewayAdapter $onPrem,
+        private readonly HttpAiGatewayAdapter $http,
+    ) {}
 
-    public function askKnowledgeBase(string $query, array $context = []): AiAnswer
+    public function create(): AiGatewayInterface
     {
-        return AiAnswer::unavailable('سرویس دستیار هوشمند HSE هنوز فعال نشده است.');
-    }
+        if (getenv('AI_GATEWAY_ENABLED') !== 'true') {
+            return $this->null;       // ۱) کاملاً خاموش
+        }
+        if ($this->http->isEnabled()) {
+            return $this->http;       // ۳) RAG/LLM واقعی خارجی (فاز بعد، هنوز پیاده نشده در تولید)
+        }
 
-    public function classifyRiskText(string $text, array $context = []): AiRiskClassification
-    {
-        return AiRiskClassification::unavailable();
+        return $this->onPrem;         // ۲) بستهٔ دانش محلی — پیش‌فرض وقتی فعال است
     }
 }
 ```
 
-Wiring در `config/services.yaml`:
+| سطح | کلاس | فعال وقتی | رفتار |
+|---|---|---|---|
+| ۱. خاموش | `NullAiGatewayAdapter` | `AI_GATEWAY_ENABLED=false` (مقدار فعلی `.env` محلی) | همیشه `unavailable`/۵۰۳ با پیام «هنوز فعال نشده» |
+| ۲. بستهٔ دانش محلی (**واقعی، بدون LLM**) | `OnPremAiGatewayAdapter` + `HseKnowledgePack` | `AI_GATEWAY_ENABLED=true` (پیش‌فرض `.env.example`) و بدون `AI_GATEWAY_URL` | تطبیق کلیدواژه روی چند سند HSE مرجع (`HseKnowledgePack::retrieve`) + طبقه‌بندی ریسک با regex کلیدواژه‌ای |
+| ۳. RAG/LLM خارجی واقعی | `HttpAiGatewayAdapter` | `AI_GATEWAY_URL` تنظیم و در دسترس باشد | HTTP client ساده به سرویس AI Gateway مرکزی (Qdrant + embedding + LLM) — **هنوز در تولید فعال نشده** |
+
+Wiring در `config/services.yaml` (بدون نیاز به تغییر دستی هنگام سوییچ محیط):
 ```yaml
 services:
     App\Infrastructure\AiGateway\AiGatewayInterface:
-        # فاز فعلی: همیشه Stub. فاز بعد: alias به HttpAiGatewayAdapter بر اساس AI_GATEWAY_ENABLED
-        class: App\Infrastructure\AiGateway\NullAiGatewayAdapter
+        factory: ['@App\Infrastructure\AiGateway\AiGatewayFactory', 'create']
 ```
 
-## ۶.۴ نقاط اتصال UI (غیرفعال ولی موجود)
+## ۶.۴ نقاط اتصال UI
 | مکان | رفتار فعلی |
 |---|---|
-| دکمهٔ «پرسش از دستیار دانش HSE» در فرم مجوز/MOC | نمایش داده می‌شود ولی با tooltip «به‌زودی» غیرفعال است؛ کلیک آن endpoint را صدا می‌زند و پاسخ `503` را به پیام کاربرپسند تبدیل می‌کند |
-| پیشنهاد خودکار محتوای JSA هنگام ایجاد مجوز | فیلد `jsaReference` در فرم وجود دارد اما به‌صورت دستی پر می‌شود؛ دکمهٔ «پیشنهاد هوشمند» غیرفعال |
+| دکمهٔ «پرسش از دستیار دانش HSE» در فرم مجوز/MOC و صفحهٔ AI | وقتی سطح ۱ (خاموش) است: تلاش برای پرسش پیام «هنوز فعال نشده» برمی‌گرداند. وقتی سطح ۲ یا ۳ فعال است: پاسخ واقعی (متن + منبع/citation) از بستهٔ دانش محلی یا سرویس خارجی نمایش داده می‌شود؛ فرانت‌اند (`AiPage.tsx`) هر دو حالت را هندل می‌کند، نه فقط ۵۰۳ |
+| پیشنهاد خودکار محتوای JSA هنگام ایجاد مجوز | فیلد `jsaReference` در فرم وجود دارد اما به‌صورت دستی پر می‌شود؛ دکمهٔ «پیشنهاد هوشمند» غیرفعال (این بخش هنوز به `classifyRiskText` وصل نشده) |
 
 ## ۶.۵ کانفیگ (از الان در `.env.example` موجود)
 ```

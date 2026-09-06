@@ -6,13 +6,13 @@
 
 ## وضعیت فعلی
 
-فاز ۱ هستهٔ BPMS کامل شده است: گردش‌کار PTW/MOC با Guard، گاز‌تست و LOTO، حوادث+CAPA، داشبورد، QR/PWA، و جای رزرو AI.
+فاز ۱ هستهٔ BPMS کامل شده و بخشی از فاز ۲ نیز اضافه شده است: گردش‌کار PTW/MOC با Guard (شامل بلاک‌شدن به‌خاطر نگه‌داشت PetroOps، هم در ایجاد و هم در فعال‌سازی/از سرگیری/ورود به implementation)، گاز‌تست و LOTO، حوادث+CAPA، ماژول اضطراری (Emergency/Drill)، داشبورد، QR/PWA، و AI Gateway سه‌سطحی (جزئیات: [`docs/06-ai-gateway-placeholder.md`](docs/06-ai-gateway-placeholder.md)).
 
 | مورد | وضعیت |
 |---|---|
 | بک‌اند | Symfony 7.4 LTS + API Platform + Workflow + JWT |
 | فرانت‌اند | React 19 + Vite + Tailwind v4 (RTL) + داشبورد |
-| RAG/LLM | Stub — `/api/ai/knowledge-query` همیشه `503` |
+| AI Gateway | سه‌سطحی: خاموش (پیش‌فرض `.env` محلی) / بستهٔ دانش محلی واقعی (کلیدواژه‌ای، بدون LLM — پیش‌فرض `.env.example`) / HTTP خارجی (RAG/LLM واقعی — هنوز در تولید وصل نشده) |
 | Production | فعال: [https://hse.aria-ai.ir](https://hse.aria-ai.ir) — CI/CD به GHCR |
 
 ## اجرای محلی
