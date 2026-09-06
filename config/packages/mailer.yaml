@@ -1,0 +1,13 @@
+# =====================================================================
+# پیکربندی Symfony Mailer — طبق قاعدهٔ «هرگز Production را خراب نکن»:
+# اگر MAILER_DSN در .env سرور اصلاً تعریف نشده باشد (نصب‌های قبلی)، به‌جای
+# خطای EnvNotFoundException، به‌صورت امن روی null://null (نادیده‌گرفتن پیام)
+# سقوط می‌کند. فعال/غیرفعال بودن ارسال واقعی ایمیل با NOTIFICATIONS_ENABLED
+# در NotificationFactory کنترل می‌شود، نه این فایل.
+# =====================================================================
+parameters:
+    env_default.mailer_dsn: 'null://null'
+
+framework:
+    mailer:
+        dsn: '%env(default:env_default.mailer_dsn:MAILER_DSN)%'

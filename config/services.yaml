@@ -16,6 +16,9 @@ services:
     App\Infrastructure\AiGateway\AiGatewayInterface:
         factory: ['@App\Infrastructure\AiGateway\AiGatewayFactory', 'create']
 
+    App\Infrastructure\Notification\NotificationInterface:
+        factory: ['@App\Infrastructure\Notification\NotificationFactory', 'create']
+
     App\Controller\PermitTransitionController:
         arguments:
             $permitToWorkStateMachine: '@state_machine.permit_to_work'
