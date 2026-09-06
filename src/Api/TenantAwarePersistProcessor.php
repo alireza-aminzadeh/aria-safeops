@@ -7,7 +7,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use App\Domain\Incident\Entity\Incident;
 use App\Domain\Incident\SafetyKpiCalculator;
-use App\Domain\Integration\Entity\EquipmentHold;
+use App\Domain\Integration\EquipmentHoldChecker;
 use App\Domain\Moc\Entity\MocRequest;
 use App\Domain\Permit\Entity\Permit;
 use App\Domain\Shared\Entity\User;
@@ -23,6 +23,7 @@ final class TenantAwarePersistProcessor implements ProcessorInterface
         private readonly ProcessorInterface $persist,
         private readonly Security $security,
         private readonly EntityManagerInterface $em,
+        private readonly EquipmentHoldChecker $holdChecker,
     ) {
     }
 
@@ -64,13 +65,8 @@ final class TenantAwarePersistProcessor implements ProcessorInterface
 
     private function assertEquipmentNotHeld(string $equipmentTag): void
     {
-        $hold = $this->em->getRepository(EquipmentHold::class)->findOneBy([
-            'equipmentTag' => $equipmentTag,
-        ]);
-        if ($hold instanceof EquipmentHold && $hold->getStatus() === 'open') {
-            throw new UnprocessableEntityHttpException(
-                sprintf('تجهیز %s به‌خاطر آنومالی باز پتروپایش مسدود است.', $equipmentTag),
-            );
+        if ($message = $this->holdChecker->blockerMessage($equipmentTag)) {
+            throw new UnprocessableEntityHttpException($message);
         }
     }
 }

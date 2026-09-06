@@ -2,6 +2,7 @@
 
 namespace App\Domain\Moc\Workflow;
 
+use App\Domain\Integration\EquipmentHoldChecker;
 use App\Domain\Moc\Entity\MocRequest;
 use App\Domain\Moc\Voter\MocVoter;
 use App\Domain\Shared\Entity\User;
@@ -16,6 +17,7 @@ final class MocWorkflowSubscriber
     public function __construct(
         private readonly Security $security,
         private readonly AuditLogger $audit,
+        private readonly EquipmentHoldChecker $equipmentHold,
     ) {
     }
 
@@ -33,6 +35,16 @@ final class MocWorkflowSubscriber
 
         if (!$this->security->isGranted($attribute, $moc)) {
             $event->setBlocked(true, 'شما مجاز به این گذار نیستید.');
+            return;
+        }
+
+        // گذار «approve» یعنی MOC وارد فاز implementation (اجرای فیزیکی روی
+        // تجهیز) می‌شود؛ اگر PetroOps روی همان equipment_tag نگه‌داشت باز
+        // (آنومالی بحرانی) ثبت کرده باشد، اجرای فیزیکی تغییر باید مسدود شود.
+        if ($name === 'approve' && $moc->getEquipmentTag()) {
+            if ($blocker = $this->equipmentHold->blockerMessage($moc->getEquipmentTag())) {
+                $event->setBlocked(true, $blocker);
+            }
         }
     }
 
