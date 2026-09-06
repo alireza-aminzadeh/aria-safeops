@@ -27,6 +27,23 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
+      # =================================================================
+      # نکته شبکهٔ محلی (فقط Windows/دِو، هرگز روی Production استفاده
+      # نمی‌شود): در برخی شبکه‌ها (فیلترینگ DNS ملی) resolve شدن دامنه‌های
+      # بستهٔ نصب (apk/composer/npm) از داخل کانتینر/WSL2 با IP جعلی
+      # جواب داده می‌شود، در حالی که اتصال TCP/TLS مستقیم به IP واقعی سالم
+      # است. این خطوط فقط hostname→IP واقعی را pin می‌کنند (بدون تغییر
+      # رفتار در شبکه‌های سالم). اگر باز هم build شکست خورد، IP جدید را با
+      # دستور زیر (که DNS-over-HTTPS واقعی برمی‌گرداند، نه DNS سیستم) پیدا
+      # کنید:
+      #   Invoke-RestMethod "https://1.1.1.1/dns-query?name=HOST&type=A" -Headers @{accept='application/dns-json'}
+      extra_hosts:
+        - "dl-cdn.alpinelinux.org=151.101.2.132"
+        - "repo.packagist.org=143.244.50.210"
+        - "github.com=172.182.252.133"
+        - "codeload.github.com=172.182.252.132"
+        - "objects.githubusercontent.com=185.199.109.133"
+        - "raw.githubusercontent.com=185.199.108.133"
     user: "0:0"
     environment:
       APP_ENV: dev
@@ -35,6 +52,12 @@ services:
     command: ["sh", "/var/www/app/infra/docker/app-dev.sh"]
     volumes:
       - ./:/var/www/app
+    extra_hosts:
+      - "repo.packagist.org=143.244.50.210"
+      - "github.com=172.182.252.133"
+      - "codeload.github.com=172.182.252.132"
+      - "objects.githubusercontent.com=185.199.109.133"
+      - "raw.githubusercontent.com=185.199.108.133"
     depends_on:
       postgres:
         condition: service_healthy
@@ -58,6 +81,9 @@ services:
       - ./:/workspace
     environment:
       VITE_API_BASE: /api
+    # نکتهٔ شبکهٔ محلی (بالا در سرویس app توضیح داده شد) — pin کردن IP واقعی npm:
+    extra_hosts:
+      - "registry.npmjs.org=104.16.9.34"
     networks:
       - aria_safeops_net
     deploy:
@@ -74,3 +100,14 @@ services:
   redis:
     ports:
       - "127.0.0.1:6380:6379"
+
+###> symfony/mailer ###
+  mailer:
+    image: axllent/mailpit
+    ports:
+      - "1025"
+      - "8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+###< symfony/mailer ###
