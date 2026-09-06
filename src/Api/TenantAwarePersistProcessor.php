@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use App\Domain\Incident\Entity\Incident;
+use App\Domain\Incident\SafetyKpiCalculator;
 use App\Domain\Integration\Entity\EquipmentHold;
 use App\Domain\Moc\Entity\MocRequest;
 use App\Domain\Permit\Entity\Permit;
@@ -41,6 +42,12 @@ final class TenantAwarePersistProcessor implements ProcessorInterface
                 $data->setTenant($user->getTenant());
                 $data->setReportedBy($user);
             }
+        }
+
+        if ($operation instanceof Post && $data instanceof Incident) {
+            // طبقه‌بندی «ثبت‌شدنی» (Recordable) طبق قرارداد OSHA 1904/API 754 همیشه در لحظهٔ
+            // ثبت به‌صورت خودکار محاسبه می‌شود؛ مدیر HSE می‌تواند بعداً از طریق PATCH اصلاح کند.
+            $data->setRecordable(SafetyKpiCalculator::isRecordableByDefault($data->getType(), $data->getSeverity()));
         }
 
         if ($operation instanceof Post) {

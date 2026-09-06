@@ -68,6 +68,35 @@ class Incident
     #[Groups(['incident:read', 'incident:write'])]
     private ?string $rcaNotes = null;
 
+    /**
+     * تحلیل ریشه‌ای ساخت‌یافته (۵ چرا). هر عضو یک لایهٔ «چرا» را نگه می‌دارد؛
+     * آخرین عضو غیرخالی معمولاً علت ریشه‌ای است.
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(name: 'root_cause_whys', type: 'json')]
+    #[Groups(['incident:read', 'incident:write'])]
+    private array $rootCauseWhys = [];
+
+    #[ORM\Column(name: 'root_cause_category', length: 32, nullable: true)]
+    #[Groups(['incident:read', 'incident:write'])]
+    #[Assert\Choice(choices: ['human_factor', 'procedure_gap', 'equipment_failure', 'design', 'training', 'management_system', 'external'], message: 'دستهٔ علت ریشه‌ای نامعتبر است.')]
+    private ?string $rootCauseCategory = null;
+
+    #[ORM\Column(name: 'lost_days', type: 'integer')]
+    #[Groups(['incident:read', 'incident:write'])]
+    #[Assert\PositiveOrZero]
+    private int $lostDays = 0;
+
+    /**
+     * آیا این حادثه طبق قرارداد ثبت (OSHA 1904 / API 754) «ثبت‌شدنی» است —
+     * مبنای محاسبهٔ TRIR. مقدار اولیه هنگام ایجاد به‌صورت خودکار از نوع/شدت
+     * محاسبه می‌شود؛ مدیر HSE می‌تواند بعداً دستی بازنویسی کند.
+     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['incident:read', 'incident:write'])]
+    private bool $recordable = false;
+
     #[ORM\Column(length: 180, nullable: true)]
     #[Groups(['incident:read', 'incident:write'])]
     private ?string $location = null;
@@ -106,6 +135,17 @@ class Incident
     public function setDescription(string $description): void { $this->description = $description; }
     public function getRcaNotes(): ?string { return $this->rcaNotes; }
     public function setRcaNotes(?string $rcaNotes): void { $this->rcaNotes = $rcaNotes; }
+    /** @return list<string> */
+    public function getRootCauseWhys(): array { return $this->rootCauseWhys; }
+    /** @param list<string> $whys */
+    public function setRootCauseWhys(array $whys): void { $this->rootCauseWhys = array_values(array_map('strval', $whys)); }
+    public function getRootCauseCategory(): ?string { return $this->rootCauseCategory; }
+    public function setRootCauseCategory(?string $rootCauseCategory): void { $this->rootCauseCategory = $rootCauseCategory; }
+    public function getLostDays(): int { return $this->lostDays; }
+    public function setLostDays(int $lostDays): void { $this->lostDays = max(0, $lostDays); }
+    public function isLostTimeInjury(): bool { return $this->lostDays > 0; }
+    public function isRecordable(): bool { return $this->recordable; }
+    public function setRecordable(bool $recordable): void { $this->recordable = $recordable; }
     public function getLocation(): ?string { return $this->location; }
     public function setLocation(?string $location): void { $this->location = $location; }
     public function getReportedBy(): ?User { return $this->reportedBy; }

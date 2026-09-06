@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Domain\Contractor\Entity\ContractorCertification;
 use App\Domain\Incident\Entity\Incident;
+use App\Domain\Incident\Entity\SafetyPeriodMetric;
+use App\Domain\Incident\SafetyKpiCalculator;
 use App\Domain\Moc\Entity\HazopRegisterItem;
 use App\Domain\Psm\Api754KpiCalculator;
 use App\Domain\Shared\Entity\User;
@@ -77,12 +79,54 @@ final class Api754Controller extends AbstractController
         $hours = max(1.0, 8760 / 12);
         $pseRate = round(($counts['tier1'] + $counts['tier2']) / $hours * 1_000_000, 3);
 
+        $sinceOneYear = new \DateTimeImmutable('-365 days');
+        $hoursWorkedTtm = (float) ($this->em->createQueryBuilder()
+            ->select('COALESCE(SUM(m.hoursWorked), 0)')
+            ->from(SafetyPeriodMetric::class, 'm')
+            ->andWhere('m.tenant = :tenant')
+            ->andWhere('m.periodStart >= :since')
+            ->setParameter('tenant', $tenant)
+            ->setParameter('since', $sinceOneYear)
+            ->getQuery()
+            ->getSingleScalarResult());
+
+        $lostTimeInjuries = (int) $this->em->createQueryBuilder()
+            ->select('COUNT(i.id)')
+            ->from(Incident::class, 'i')
+            ->andWhere('i.tenant = :tenant')
+            ->andWhere('i.lostDays > 0')
+            ->andWhere('i.reportedAt >= :since')
+            ->setParameter('tenant', $tenant)
+            ->setParameter('since', $sinceOneYear)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $recordableCount = (int) $this->em->createQueryBuilder()
+            ->select('COUNT(i.id)')
+            ->from(Incident::class, 'i')
+            ->andWhere('i.tenant = :tenant')
+            ->andWhere('i.recordable = true')
+            ->andWhere('i.reportedAt >= :since')
+            ->setParameter('tenant', $tenant)
+            ->setParameter('since', $sinceOneYear)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $hasLoggedHours = $hoursWorkedTtm > 0.0;
+
         return $this->json([
             'tier1' => $counts['tier1'],
             'tier2' => $counts['tier2'],
             'tier3' => $counts['tier3'],
             'tier4' => $counts['tier4'],
             'pseRatePerMillionHours' => $pseRate,
+            'safety' => [
+                'hoursWorkedTtm' => $hasLoggedHours ? round($hoursWorkedTtm, 2) : null,
+                'lostTimeInjuriesTtm' => $lostTimeInjuries,
+                'recordableCountTtm' => $recordableCount,
+                'ltifr' => $hasLoggedHours ? SafetyKpiCalculator::ltifr($lostTimeInjuries, $hoursWorkedTtm) : null,
+                'trir' => $hasLoggedHours ? SafetyKpiCalculator::trir($recordableCount, $hoursWorkedTtm) : null,
+            ],
             'leading' => [
                 'openHighHazop' => $openHighHazop,
                 'expiredCertifications' => $expiredCerts,
