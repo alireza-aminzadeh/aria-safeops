@@ -29,9 +29,20 @@ final class TenantQueryExtension implements QueryCollectionExtensionInterface, Q
         $this->restrict($queryBuilder, $resourceClass);
     }
 
+    /**
+     * منابع API Platform که ستون/رابطهٔ `tenant` روی خودشان دارند و باید طبق
+     * تننت کاربر جاری فیلتر شوند. توجه: `Contractor` عمداً اینجا نیست — در
+     * مدل دادهٔ فعلی، پیمانکار سطح تننت ندارد (فرض: پیمانکار مشترک بین
+     * سایت‌ها)؛ اگر این فرض عوض شد، اول ستون `tenant_id` باید به Contractor
+     * اضافه شود، بعد اینجا لیست شود.
+     *
+     * @var list<class-string>
+     */
+    private const TENANT_SCOPED_RESOURCES = [Permit::class, MocRequest::class, Incident::class, User::class];
+
     private function restrict(QueryBuilder $queryBuilder, string $resourceClass): void
     {
-        if (!in_array($resourceClass, [Permit::class, MocRequest::class, Incident::class], true)) {
+        if (!in_array($resourceClass, self::TENANT_SCOPED_RESOURCES, true)) {
             return;
         }
         $user = $this->security->getUser();
