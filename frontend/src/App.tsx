@@ -13,9 +13,13 @@ import { IncidentDetailPage } from './pages/IncidentDetailPage';
 import { ContractorsPage } from './pages/ContractorsPage';
 import { AiPage } from './pages/AiPage';
 import { PsmPage } from './pages/PsmPage';
+import { PsmAuditPage } from './pages/PsmAuditPage';
+import { EmergencyPage } from './pages/EmergencyPage';
+import { EquipmentStatusPage } from './pages/EquipmentStatusPage';
 import { ShiftPage } from './pages/ShiftPage';
 import { VisionPage } from './pages/VisionPage';
 import { useMercure } from './lib/useMercure';
+import { OfflineBanner } from './components/OfflineBanner';
 
 function Private({ children }: { children: React.ReactNode }) {
   if (!getToken()) return <Navigate to="/login" replace />;
@@ -35,8 +39,10 @@ function Shell() {
     { to: '/permits', label: 'مجوز کار' },
     { to: '/moc', label: 'مدیریت تغییر' },
     { to: '/psm', label: 'PSM / HAZOP' },
+    { to: '/psm-audit', label: 'ممیزی PSM' },
     { to: '/shift', label: 'شیفت' },
     { to: '/incidents', label: 'حوادث' },
+    { to: '/emergency', label: 'اضطراری و محیط‌زیست' },
     { to: '/vision', label: 'Vision' },
     { to: '/contractors', label: 'پیمانکاران' },
     { to: '/ai', label: 'دستیار دانش' },
@@ -71,6 +77,7 @@ function Shell() {
         </div>
       </aside>
       <main className="p-8">
+        <OfflineBanner />
         {notice ? <p className="mb-4 rounded-lg bg-ember/20 text-ember px-3 py-2 text-sm">{notice}</p> : null}
         <Outlet />
       </main>
@@ -93,6 +100,9 @@ export default function App() {
           <Route path="incidents/:id" element={<IncidentDetailPage />} />
           <Route path="contractors" element={<ContractorsPage />} />
           <Route path="psm" element={<PsmPage />} />
+          <Route path="psm-audit" element={<PsmAuditPage />} />
+          <Route path="emergency" element={<EmergencyPage />} />
+          <Route path="equipment/:tag" element={<EquipmentStatusPage />} />
           <Route path="shift" element={<ShiftPage />} />
           <Route path="vision" element={<VisionPage />} />
           <Route path="ai" element={<AiPage />} />
