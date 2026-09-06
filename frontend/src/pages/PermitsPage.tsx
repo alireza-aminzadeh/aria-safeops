@@ -1,7 +1,8 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, collection } from '../lib/api';
 import { faDate } from '../lib/labels';
+import { mutateOrQueue, useOfflineQueue } from '../lib/offlineQueue';
 import type { Permit, PermitType } from '../lib/types';
 import { StatusBadge } from '../components/StatusBadge';
 
@@ -13,6 +14,7 @@ export function PermitsPage() {
   const [locationPlotRef, setLocationPlotRef] = useState('Unit-A / Plot-12');
   const [workDescription, setWorkDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function load() {
     const [permits, typeList] = await Promise.all([
@@ -27,16 +29,31 @@ export function PermitsPage() {
 
   useEffect(() => { void load().catch((err) => setError(err instanceof Error ? err.message : 'خطا')); }, []);
 
+  // با موفقیت‌آمیز شدن ارسال صف آفلاین (کاهش تعداد صف)، فهرست را دوباره بگیر تا مجوز تازه‌سینک‌شده دیده شود.
+  const { pendingCount } = useOfflineQueue();
+  const previousPendingCount = useRef(pendingCount);
+  useEffect(() => {
+    if (pendingCount < previousPendingCount.current) void load().catch(() => undefined);
+    previousPendingCount.current = pendingCount;
+  }, [pendingCount]);
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
+    setNotice(null);
     try {
-      await api('/permits', {
+      const result = await mutateOrQueue({
+        path: '/permits',
         method: 'POST',
-        body: JSON.stringify({ permitType, equipmentTag, locationPlotRef, workDescription }),
+        body: { permitType, equipmentTag, locationPlotRef, workDescription },
+        description: `صدور مجوز کار — ${equipmentTag}`,
       });
       setWorkDescription('');
-      await load();
+      if (result.queued) {
+        setNotice('اتصال اینترنت برقرار نیست؛ درخواست ذخیره شد و به‌محض اتصال ارسال می‌شود.');
+      } else {
+        await load();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'خطا در ثبت مجوز');
     }
@@ -59,6 +76,7 @@ export function PermitsPage() {
         <label className="text-xs text-muted">شرح کار</label>
         <textarea className="w-full mb-4 mt-1 rounded-lg bg-ink border border-line px-3 py-2 min-h-24" value={workDescription} onChange={(e) => setWorkDescription(e.target.value)} required />
         {error ? <p className="text-rust text-sm mb-3">{error}</p> : null}
+        {notice ? <p className="text-ember text-sm mb-3">{notice}</p> : null}
         <button className="w-full rounded-lg bg-ember text-ink py-2">ثبت پیش‌نویس</button>
       </form>
       <div className="rounded-2xl border border-line bg-panel overflow-hidden">
