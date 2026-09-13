@@ -49,7 +49,7 @@ chown -R deploy:deploy /home/deploy/.ssh
 ## ۷.۵ احراز هویت و مجوزها
 - **JWT** (LexikJWTAuthenticationBundle) با `JWT_TTL=28800` (۸ ساعت) + Refresh Token جدا با انقضای کوتاه‌تر برای دسترسی حساس.
 - ورود با **نام کاربری** (ستون `users.username`) یا ایمیل.
-- **کاربر راه‌انداز مشترک با PetroOps:** نام کاربری `alireza`. رمز لوکال `alireza`؛ رمز Production (یکسان در هر دو سامانه) `Aria7x!Alireza#Ops2026`. بازنویسی با `SEED_ALIREZA_PASSWORD`.
+- **کاربر راه‌انداز مشترک با PetroOps:** نام کاربری `alireza`. رمز لوکال `alireza`. رمز Production فقط از طریق `SEED_ALIREZA_PASSWORD` روی سرور (در git ذخیره نشود).
 - **RBAC پایه**: `ROLE_PERMIT_ISSUER`, `ROLE_HSE_MANAGER`, `ROLE_CONTRACTOR`, `ROLE_ADMIN` در `security.yaml`.
 - **ABAC دقیق**: Symfony Voter برای تصمیم‌های ریزدانه (مثلاً «مدیر HSE فقط می‌تواند مجوز‌های سایت خودش را تأیید کند» — تطبیق `tenant_id`).
 - **Rate Limiting** روی `/api/login` (۵ تلاش در ۱۵ دقیقه) برای پیشگیری از brute-force.

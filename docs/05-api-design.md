@@ -8,7 +8,7 @@
 - احراز هویت: `Authorization: Bearer <JWT>` (LexikJWTAuthenticationBundle).
 - ورود: `POST /api/login` با `{ "username": "alireza", "password": "..." }` (ایمیل هم به‌عنوان شناسه پذیرفته می‌شود).
   - لوکال: `alireza` / `alireza`
-  - Production: `alireza` / `Aria7x!Alireza#Ops2026`
+  - Production: رمز بذر را با `SEED_ALIREZA_PASSWORD` روی سرور بگذارید (در git نیست).
 - Pagination: `?page=1&itemsPerPage=30` (پیش‌فرض API Platform، قابل تنظیم).
 - فیلتر: `SearchFilter`, `OrderFilter`, `DateFilter` روی فیلدهای مشخص‌شده در `#[ApiFilter]`.
 
