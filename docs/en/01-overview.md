@@ -6,11 +6,14 @@ English technical manual. Persian original: [`../01-overview.md`](../01-overview
 
 Aria SafeOps is the **process-safety, electronic permit-to-work (Control of Work), and HSE knowledge** system for oil, gas, and petrochemical operating units.
 
+Data collection, process analysis, and implementation of this project were carried out in **2024, 2025, and 2026**.
+
 | | |
 |---|---|
 | Public site | https://hse.aria-ai.ir |
 | GitHub | https://github.com/alireza-aminzadeh/aria-safeops |
 | Role in the family | Sister of [Aria PetroOps](https://github.com/alireza-aminzadeh/aria-petroops) |
+| Project period | 2024, 2025, and 2026 — data collection, process analysis, and implementation |
 
 ## 1.2 Why Symfony (not NestJS)
 

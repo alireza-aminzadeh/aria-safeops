@@ -2,6 +2,8 @@
 
 Electronic permit-to-work, process safety management, and HSE operations for oil, gas, and petrochemical sites.
 
+**Project period:** Data collection, process analysis, and implementation of this project were carried out in **2024, 2025, and 2026**.
+
 **Language:** [English](#english) · [فارسی](#persian)
 
 **Live:** [https://hse.aria-ai.ir](https://hse.aria-ai.ir) · **API docs:** [https://hse.aria-ai.ir/api/docs](https://hse.aria-ai.ir/api/docs) · **Health:** [https://hse.aria-ai.ir/api/health](https://hse.aria-ai.ir/api/health)
@@ -19,6 +21,8 @@ Sister product: [Aria PetroOps](https://github.com/alireza-aminzadeh/aria-petroo
 
 Aria SafeOps is the Control of Work / HSE product of [Aria AI](https://aria-ai.ir). It is a **headless modular monolith**: Symfony 7.4 LTS + API Platform serves JSON; a React 19 SPA (RTL, Tailwind v4) is the operator UI. Production runs on a dedicated VPS behind Nginx, with GitHub Actions building images to GHCR and deploying over SSH.
 
+Data collection, analysis of plant processes, and delivery of this system took place across **2024, 2025, and 2026**.
+
 This repository is the system of record for the product. Persian engineering notes remain in [`docs/`](docs/). English technical manuals live in [`docs/en/`](docs/en/). Status tables, KPI catalogues, gap analysis, and Hugging Face alignment are in [`docs/reports/`](docs/reports/).
 
 ## 1. Snapshot (13 September 2026)
@@ -26,6 +30,7 @@ This repository is the system of record for the product. Persian engineering not
 | Item | Value |
 |---|---|
 | Product name | Aria SafeOps («ایمن‌کار») |
+| Project period | 2024, 2025, and 2026 (data collection, process analysis, implementation) |
 | Public URL | https://hse.aria-ai.ir |
 | GitHub | https://github.com/alireza-aminzadeh/aria-safeops |
 | Current delivery | Phase 1 BPMS complete + most of Phase 2 (PSM, Vision simulator, shift, emergency/environment, Mercure, on-prem knowledge pack) |
@@ -219,6 +224,8 @@ Honest gap tables: [`docs/reports/04-gap-analysis.md`](docs/reports/04-gap-analy
 
 سامانهٔ **مجوز کار الکترونیک، مدیریت ایمنی فرآیند (PSM) و عملیات HSE** برای واحدهای نفت، گاز و پتروشیمی. محصول Control of Work مجموعهٔ [آریا اِی‌آی](https://aria-ai.ir).
 
+**دورهٔ پروژه:** گردآوری اطلاعات، تحلیل و آنالیز فرآیندها، و اجرای این سامانه در سال‌های **۲۰۲۴، ۲۰۲۵ و ۲۰۲۶** انجام شده است.
+
 **زنده:** [https://hse.aria-ai.ir](https://hse.aria-ai.ir) · **مستندات API:** [https://hse.aria-ai.ir/api/docs](https://hse.aria-ai.ir/api/docs)
 
 سامانهٔ خواهر: [Aria PetroOps](https://github.com/alireza-aminzadeh/aria-petroops) (`petro.aria-ai.ir`). قرارداد مشترک `equipment_tag` اجازه می‌دهد آنومالی بازِ فرآیندی، صدور یا فعال‌سازی مجوز/MOC را نگه دارد.
@@ -228,6 +235,7 @@ Honest gap tables: [`docs/reports/04-gap-analysis.md`](docs/reports/04-gap-analy
 | مورد | مقدار |
 |---|---|
 | نام محصول | Aria SafeOps («ایمن‌کار») |
+| دورهٔ پروژه | سال‌های ۲۰۲۴، ۲۰۲۵ و ۲۰۲۶ (گردآوری اطلاعات، تحلیل فرآیندها، اجرا) |
 | آدرس عمومی | https://hse.aria-ai.ir |
 | تحویل فعلی | فاز ۱ هستهٔ BPMS کامل + بیشتر فاز ۲ (PSM، Vision شبیه‌ساز، شیفت، اضطراری/محیط‌زیست، Mercure، بستهٔ دانش on-prem) |
 | بک‌اند | PHP 8.4 · Symfony 7.4 LTS · API Platform 4 · JWT · Symfony Workflow |
