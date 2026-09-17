@@ -2,6 +2,7 @@
 
 **Language:** English first, then فارسی.  
 **Product:** Aria SafeOps (`hse.aria-ai.ir`)  
+**Kind:** Public demo — enter from [https://aria-ai.ir](https://aria-ai.ir)  
 **As of:** 13 September 2026 (22 Shahrivar 1405)  
 **Evidence:** `docs/10-roadmap.md`, PHPUnit suite, production health endpoint, SPA routes
 
@@ -54,6 +55,8 @@ Production health (expected): `GET https://hse.aria-ai.ir/api/health` → `{ "st
 ---
 
 ## فارسی
+
+این مخزن یک **دموی عمومی** است. برای مشاهده و کار کردن با دموها به [https://aria-ai.ir](https://aria-ai.ir) مراجعه کنید.
 
 فاز ۰ و ۱ تمام شده و روی `hse.aria-ai.ir` مستقر است. بیشتر فاز ۲ (از جمله اضطراری/پساب که در نقشهٔ اولیه فاز ۳ بود) هم در Production است. آنچه باز است لایهٔ هوشمندی رقابتی (RAG واقعی + PermitGuard روی فرم مجوز)، SIMOPS فضایی، امضای واجد شرایط، و چندمستأجری کامل پیمانکار است.
 

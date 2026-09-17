@@ -6,11 +6,15 @@ English technical manual. Persian original: [`../01-overview.md`](../01-overview
 
 Aria SafeOps is the **process-safety, electronic permit-to-work (Control of Work), and HSE knowledge** system for oil, gas, and petrochemical operating units.
 
+This repository is a **public demo**. Visit **[https://aria-ai.ir](https://aria-ai.ir)** to view the demos and work with them.
+
 Data collection, process analysis, and implementation of this project were carried out in **2024, 2025, and 2026**.
 
 | | |
 |---|---|
-| Public site | https://hse.aria-ai.ir |
+| Kind | Public demo |
+| Demo entry | https://aria-ai.ir |
+| Demo URL | https://hse.aria-ai.ir |
 | GitHub | https://github.com/alireza-aminzadeh/aria-safeops |
 | Role in the family | Sister of [Aria PetroOps](https://github.com/alireza-aminzadeh/aria-petroops) |
 | Project period | 2024, 2025, and 2026 — data collection, process analysis, and implementation |

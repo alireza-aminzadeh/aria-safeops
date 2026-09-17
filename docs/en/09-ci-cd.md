@@ -5,7 +5,7 @@ Workflow: `.github/workflows/ci-cd.yml`.
 
 ## 9.1 Triggers
 
-`push` and `pull_request` to `main`, plus `workflow_dispatch`. Concurrency group `safeops-${{ github.ref }}` cancels in-progress runs.
+`push` and `pull_request` to `main`, plus `workflow_dispatch`. Markdown-only changes (`**/*.md`, `docs/**`) are ignored so a documentation edit does not rebuild images or cancel a live deploy. Concurrency group `safeops-${{ github.ref }}` cancels in-progress runs.
 
 ## 9.2 Jobs
 
